@@ -34,10 +34,7 @@ export default function Home() {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'
-      style={{ backgroundImage: 'url(santa-clauss.png)', backgroundSize: 'cover' }}>
-      <Typography variant="h3" gutterBottom>
-        Secret Santa Wheel
-      </Typography>
+      style={{ backgroundImage: 'url(backdrop.png)', backgroundSize: 'cover' }}>
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
         data={data}
