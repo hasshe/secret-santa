@@ -11,14 +11,14 @@ const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wh
 });
 
 const data = [
-  { option: 'Ebba', style: { backgroundColor: 'green', textColor: 'black' } },
-  { option: 'Hassan', style: { backgroundColor: 'white', textColor: 'black' } },
-  { option: 'Kevin', style: { backgroundColor: 'blue', textColor: 'white' } },
-  { option: 'Shayan', style: { backgroundColor: 'purple', textColor: 'white' } },
+  { option: 'Ebba', style: { backgroundColor: 'red', textColor: 'white' } },
+  { option: 'Hassan', style: { backgroundColor: 'white', textColor: 'red' } },
+  { option: 'Kevin', style: { backgroundColor: 'red', textColor: 'white' } },
+  { option: 'Shayan', style: { backgroundColor: 'white', textColor: 'red' } },
   { option: 'Adam', style: { backgroundColor: 'red', textColor: 'white' } },
-  { option: 'Rania', style: { backgroundColor: 'yellow', textColor: 'black' } },
-  { option: 'Farnush', style: { backgroundColor: 'pink', textColor: 'white' } },
-  { option: 'Victor', style: { backgroundColor: 'orange', textColor: 'white' } },
+  { option: 'Rania', style: { backgroundColor: 'white', textColor: 'red' } },
+  { option: 'Farnush', style: { backgroundColor: 'red', textColor: 'white' } },
+  { option: 'Victor', style: { backgroundColor: 'white', textColor: 'red' } },
 ]
 
 export default function Home() {
@@ -33,7 +33,8 @@ export default function Home() {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
+    <div className='flex flex-col items-center justify-center min-h-screen gap-8'
+      style={{ backgroundImage: 'url(santa-clauss.png)', backgroundSize: 'cover' }}>
       <Typography variant="h3" gutterBottom>
         Secret Santa Wheel
       </Typography>
