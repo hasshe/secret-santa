@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
@@ -22,6 +23,7 @@ const data = [
 export default function Home() {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
+  const hasSpun = prizeNumber !== 0 && mustSpin === false;
 
   const handleSpinClick = () => {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
@@ -41,5 +43,10 @@ export default function Home() {
         textColors={['#ffffff']}
         onStopSpinning={() => setMustSpin(false)} />
       <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}>SPIN THE WHEEL</Button>
+      <Dialog open={hasSpun}>
+        <div className="p-6">
+          <Typography variant="h6">{data[prizeNumber].option}</Typography>
+        </div>
+      </Dialog>
     </div>);
 }
