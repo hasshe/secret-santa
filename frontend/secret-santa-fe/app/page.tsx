@@ -38,10 +38,15 @@ export default function Home() {
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
         data={data}
-        backgroundColors={['#3c3535ff', '#df3428']}
+        backgroundColors={['#3c3535ff', '#e9e9e9ff']}
         textColors={['#ffffff']}
-        onStopSpinning={() => setMustSpin(false)} />
-      <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}>SPIN THE WHEEL</Button>
+        onStopSpinning={() => setMustSpin(false)}
+        spinDuration={0.5}
+        disableInitialAnimation={true} />
+      <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
+        sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
+        SPIN THE WHEEL
+      </Button>
       <Dialog open={hasSpun}>
         <div className="p-6" style={{ backgroundColor: '#ffffffff' }}>
           <Typography variant="h4" fontWeight="bold">{data[prizeNumber].option}</Typography>
