@@ -1,17 +1,21 @@
 import express, { Request, Response } from 'express';
-import { fetchUsers } from './service/users-service';
+import { fetchUsers, updateHasSpunStatus } from './service/users-service';
 import { mapUsersToUsersResponse } from './models/api-adapter';
-import { UsersResponse } from './models/api-models';
+import { HasSpunRequest, UsersResponse } from './models/api-models';
 
 const app = express();
 
-app.get('/status', (req, res) => {
-  res.json({ status: 'API is running' });
-});
+app.use(express.json());
 
-app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
+app.get('/users', async (_: Request, res: Response<UsersResponse>) => {
   const users = await fetchUsers();
   return res.json(mapUsersToUsersResponse(users));
+});
+
+app.put('/has-spun', async (req: Request<HasSpunRequest>, res: Response) => {
+  const { name, hasSpun, secretSantaName } = req.body;
+  await updateHasSpunStatus(name, hasSpun, secretSantaName);
+  res.sendStatus(204);
 });
 
 export default app;

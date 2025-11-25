@@ -28,3 +28,32 @@ export async function getUsers(): Promise<UserDB[]> {
 
     return data;
 }
+
+export async function getUserByName(name: string): Promise<UserDB | null> {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('name', name)
+        .single();
+
+    if (error) {
+        console.error(`Error fetching user with name ${name}:`, error);
+        return null;
+    }
+
+    return data;
+}
+
+export async function updateHasSpunStatusInDB(userId: number, hasSpunStatus: boolean, secretSantaName: string): Promise<UserDB | null> {
+    const { data, error } = await supabase
+        .from('users')
+        .update({ has_spun: hasSpunStatus, secret_santa: secretSantaName })
+        .eq('id', userId);
+
+    if (error) {
+        console.error(`Error updating hasSpun status for user ID ${userId}:`, error);
+        throw error;
+    }
+
+    return data;
+}
