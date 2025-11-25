@@ -16,7 +16,8 @@ export default function Home() {
   ]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  const hasSpun = prizeNumber !== 0 && mustSpin === false;
+  const [hasSpunOnce, setHasSpunOnce] = useState(false);
+  const hasSpun = hasSpunOnce && mustSpin === false;
 
   useEffect(() => {
     fetch('http://localhost:3000/users')
@@ -38,6 +39,7 @@ export default function Home() {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
     setPrizeNumber(newPrizeNumber);
     setMustSpin(true);
+    setHasSpunOnce(true);
   };
 
   return (
