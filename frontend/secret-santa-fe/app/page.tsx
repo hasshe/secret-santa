@@ -1,6 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
@@ -10,21 +10,29 @@ const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wh
   ssr: false,
 });
 
-const data = [
-  { option: 'Ebba', style: { backgroundColor: 'red', textColor: 'white' } },
-  { option: 'Hassan', style: { backgroundColor: 'white', textColor: 'red' } },
-  { option: 'Kevin', style: { backgroundColor: 'red', textColor: 'white' } },
-  { option: 'Shayan', style: { backgroundColor: 'white', textColor: 'red' } },
-  { option: 'Adam', style: { backgroundColor: 'red', textColor: 'white' } },
-  { option: 'Rania', style: { backgroundColor: 'white', textColor: 'red' } },
-  { option: 'Farnush', style: { backgroundColor: 'red', textColor: 'white' } },
-  { option: 'Victor', style: { backgroundColor: 'white', textColor: 'red' } },
-]
-
 export default function Home() {
+  const [data, setData] = useState([
+    { option: 'Loading...', style: { backgroundColor: 'red', textColor: 'white' } }
+  ]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const hasSpun = prizeNumber !== 0 && mustSpin === false;
+
+  useEffect(() => {
+    fetch('http://localhost:3000/users')
+      .then(res => res.json())
+      .then(users => {
+        const wheelData = users.map((user: { id: number; name: string }, index: number) => ({
+          option: user.name,
+          style: {
+            backgroundColor: index % 2 === 0 ? 'red' : 'white',
+            textColor: index % 2 === 0 ? 'white' : 'red'
+          }
+        }));
+        setData(wheelData);
+      })
+      .catch(err => console.error('Error fetching users:', err));
+  }, []);
 
   const handleSpinClick = () => {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
