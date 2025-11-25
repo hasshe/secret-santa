@@ -1,6 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, User } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
+import { UserDB } from './db-models';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -15,7 +16,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     db: { schema: 'public' }
 });
 
-export async function getUsers() {
+export async function getUsers(): Promise<UserDB[]> {
     const { data, error } = await supabase
         .from('users')
         .select('*');
