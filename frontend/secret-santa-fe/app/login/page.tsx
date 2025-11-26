@@ -5,10 +5,6 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 
 export default function LoginPage() {
-    const handleLogin = () => {
-        Cookies.set('authenticated', 'true');
-        window.location.href = '/';
-    }
     return (
         <div className="flex flex-col items-center justify-center min-h-screen">
             <TextField id="username-field" label="Username" variant="standard" slotProps={{
@@ -34,4 +30,9 @@ export default function LoginPage() {
             </Button>
         </div>
     );
+}
+
+function handleLogin() {
+    Cookies.set('authenticated', 'true');
+    window.location.href = '/';
 }
