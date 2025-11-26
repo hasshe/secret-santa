@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import Snowfall from 'react-snowfall';
-import Switch from '@mui/material/Switch';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
@@ -22,9 +21,7 @@ export default function Home() {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [hasSpunOnce, setHasSpunOnce] = useState(false);
-  const [switchChecked, setSwitchChecked] = useState(true);
   const hasSpun = hasSpunOnce && mustSpin === false;
-  const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
   useEffect(() => {
     const authStatus = Cookies.get('authenticated');
@@ -59,8 +56,7 @@ export default function Home() {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'
-      style={{ backgroundImage: getBackgroundImg(switchChecked), backgroundSize: 'cover' }}>
-      <Switch {...label} checked={switchChecked} onChange={() => setSwitchChecked(!switchChecked)} />
+      style={{ backgroundImage: "url('bgch.png')", backgroundSize: 'cover' }}>
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
         data={data}
@@ -81,11 +77,4 @@ export default function Home() {
       <Snowfall />
     </div>
   );
-}
-
-function getBackgroundImg(switchChecked: boolean) {
-  if (switchChecked) {
-    return "url('backdrop.png')";
-  }
-  return "url('bgch.png')";
 }
