@@ -4,12 +4,14 @@ export interface UserResponse {
 
 export interface UsersResponse {
     users: UserResponse[];
+    error?: string;
 }
 
 export interface HasSpunRequest {
     name: number;
     hasSpun: boolean;
     secretSantaName: string;
+    token: string;
 }
 
 export interface LoginRequest {
@@ -19,5 +21,5 @@ export interface LoginRequest {
 
 export interface LoginResponse {
     authenticated: boolean;
+    token?: string;
 }
-

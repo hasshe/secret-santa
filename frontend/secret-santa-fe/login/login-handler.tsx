@@ -20,9 +20,12 @@ export function handleLogin(userName: string, password: string,
     }
 
     if (!hasError) {
-        callBackendLoginAPI(userName, password).then(authenticated => {
+        callBackendLoginAPI(userName, password).then(({ authenticated, token }) => {
             if (authenticated) {
                 Cookies.set('authenticated', 'true');
+                if (token) {
+                    Cookies.set('token', token);
+                }
                 router.push('/');
             } else {
                 setPasswordError(true);
@@ -31,7 +34,7 @@ export function handleLogin(userName: string, password: string,
     }
 }
 
-function callBackendLoginAPI(userName: string, password: string): Promise<boolean> {
+function callBackendLoginAPI(userName: string, password: string): Promise<{ authenticated: boolean, token?: string }> {
     return fetch('http://localhost:3000/login', {
         method: 'POST',
         headers: {
@@ -42,10 +45,10 @@ function callBackendLoginAPI(userName: string, password: string): Promise<boolea
     })
         .then(response => response.json())
         .then(data => {
-            return data.authenticated as boolean;
+            return { authenticated: data.authenticated as boolean, token: data.token as string | undefined };
         })
         .catch(error => {
             console.error('Error during login:', error);
-            return false;
+            return { authenticated: false, token: undefined };
         });
 }

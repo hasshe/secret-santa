@@ -24,14 +24,20 @@ export default function Home() {
 
   useEffect(() => {
     const authStatus = Cookies.get('authenticated');
-    if (authStatus !== 'true') {
+    const token = Cookies.get('token');
+    if (authStatus !== 'true' || token === undefined) {
       router.push('/login');
       return;
     }
   }, [router]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/users')
+    const token = Cookies.get('token');
+    fetch('http://localhost:3000/users', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
       .then(res => res.json())
       .then(usersResponse => {
         const wheelData = usersResponse.users.map((user: { id: number; name: string }, index: number) => ({
