@@ -1,7 +1,6 @@
 'use client';
 import { Button, InputAdornment, TextField } from "@mui/material";
 import Cookies from 'js-cookie';
-import Snowfall from 'react-snowfall';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 
@@ -11,8 +10,7 @@ export default function LoginPage() {
         window.location.href = '/';
     }
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen" style={{ backgroundImage: "url('bgch.png')", backgroundSize: 'cover' }}>
-            <Snowfall />
+        <div className="flex flex-col items-center justify-center min-h-screen">
             <TextField id="username-field" label="Username" variant="standard" slotProps={{
                 input: {
                     startAdornment: (

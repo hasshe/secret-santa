@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
-import Snowfall from 'react-snowfall';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
@@ -55,8 +54,7 @@ export default function Home() {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen gap-8'
-      style={{ backgroundImage: "url('bgch.png')", backgroundSize: 'cover' }}>
+    <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
         data={data}
@@ -74,7 +72,6 @@ export default function Home() {
           <Typography variant="h4" fontWeight="bold">{data[prizeNumber].option}</Typography>
         </div>
       </Dialog>
-      <Snowfall />
     </div>
   );
 }
