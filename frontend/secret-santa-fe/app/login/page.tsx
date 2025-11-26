@@ -1,6 +1,9 @@
 'use client';
-import { Button } from "@mui/material";
+import { Button, InputAdornment, TextField } from "@mui/material";
 import Cookies from 'js-cookie';
+import Snowfall from 'react-snowfall';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import LockPersonIcon from '@mui/icons-material/LockPerson';
 
 export default function LoginPage() {
     const handleLogin = () => {
@@ -8,9 +11,27 @@ export default function LoginPage() {
         window.location.href = '/';
     }
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <h1>Login Page</h1>
-            <Button variant="contained" color="primary" onClick={handleLogin}>
+        <div className="flex flex-col items-center justify-center min-h-screen" style={{ backgroundImage: "url('bgch.png')", backgroundSize: 'cover' }}>
+            <Snowfall />
+            <TextField id="username-field" label="Username" variant="standard" slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <AccountCircle />
+                        </InputAdornment>
+                    ),
+                },
+            }} />
+            <TextField id="password-field" label="Password" variant="standard" type="password" slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <LockPersonIcon />
+                        </InputAdornment>
+                    ),
+                },
+            }} />
+            <Button variant="contained" color="primary" onClick={handleLogin} sx={{ marginTop: '20px', fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
                 Login
             </Button>
         </div>
