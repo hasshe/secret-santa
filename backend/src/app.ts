@@ -82,4 +82,10 @@ app.post('/login', async (req: Request<LoginRequest>, res: Response<LoginRespons
   }
 });
 
+app.post('/verify-token', (_, res: Response<{ valid: boolean }>) => {
+  verifyToken(_, res, () => {
+    res.status(200).json({ valid: true });
+  });
+});
+
 export default app;
