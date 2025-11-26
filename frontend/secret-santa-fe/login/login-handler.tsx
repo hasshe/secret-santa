@@ -20,7 +20,31 @@ export function handleLogin(userName: string, password: string,
     }
 
     if (!hasError) {
-        Cookies.set('authenticated', 'true');
-        router.push('/');
+        callBackendLoginAPI(userName, password).then(authenticated => {
+            if (authenticated) {
+                Cookies.set('authenticated', 'true');
+                router.push('/');
+            } else {
+                setPasswordError(true);
+            }
+        });
     }
+}
+
+function callBackendLoginAPI(userName: string, password: string): Promise<boolean> {
+    return fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: userName, password: password }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            return data.authenticated as boolean;
+        })
+        .catch(error => {
+            console.error('Error during login:', error);
+            return false;
+        });
 }
