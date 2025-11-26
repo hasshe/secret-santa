@@ -6,12 +6,16 @@ import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import Snowfall from 'react-snowfall';
 import Switch from '@mui/material/Switch';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
 });
 
 export default function Home() {
+  const router = useRouter();
+
   const [data, setData] = useState([
     { option: 'Loading...', style: { backgroundColor: 'red', textColor: 'white' } }
   ]);
@@ -21,6 +25,14 @@ export default function Home() {
   const [switchChecked, setSwitchChecked] = useState(true);
   const hasSpun = hasSpunOnce && mustSpin === false;
   const label = { inputProps: { 'aria-label': 'Switch demo' } };
+
+  useEffect(() => {
+    const authStatus = Cookies.get('authenticated');
+    if (authStatus !== 'true') {
+      router.push('/login');
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     fetch('http://localhost:3000/users')
