@@ -4,6 +4,7 @@ import { mapUsersToUsersResponse } from './models/api-adapter';
 import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse } from './models/api-models';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
+import { rateLimit } from 'express-rate-limit'
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -15,24 +16,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-function verifyToken(req: Request, res: Response, next: Function) {
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ valid: false, message: 'No token provided' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { username: string };
-    (req as any).user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ valid: false, message: 'Invalid token' });
-  }
-}
-
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+})
+
+app.use(limiter)
 
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
   verifyToken(req, res, async () => {
@@ -87,5 +80,22 @@ app.post('/verify-token', (_, res: Response<{ valid: boolean }>) => {
     res.status(200).json({ valid: true });
   });
 });
+
+function verifyToken(req: Request, res: Response, next: Function) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ valid: false, message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { username: string };
+    (req as any).user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ valid: false, message: 'Invalid token' });
+  }
+}
 
 export default app;
