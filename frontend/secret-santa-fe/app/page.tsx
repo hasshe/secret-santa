@@ -40,6 +40,11 @@ export default function Home() {
     })
       .then(res => res.json())
       .then(usersResponse => {
+        if (!usersResponse.users || !Array.isArray(usersResponse.users)) {
+          console.error('Invalid users response:', usersResponse);
+          router.push('/login');
+          return;
+        }
         const wheelData = usersResponse.users.map((user: { id: number; name: string }, index: number) => ({
           option: user.name,
           style: {
@@ -50,7 +55,7 @@ export default function Home() {
         setData(wheelData);
       })
       .catch(err => console.error('Error fetching users:', err));
-  }, []);
+  }, [router]);
 
   const handleSpinClick = () => {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
