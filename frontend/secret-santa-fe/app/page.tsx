@@ -22,8 +22,8 @@ export default function Home() {
   useEffect(() => {
     fetch('http://localhost:3000/users')
       .then(res => res.json())
-      .then(users => {
-        const wheelData = users.map((user: { id: number; name: string }, index: number) => ({
+      .then(usersResponse => {
+        const wheelData = usersResponse.users.map((user: { id: number; name: string }, index: number) => ({
           option: user.name,
           style: {
             backgroundColor: index % 2 === 0 ? 'red' : 'white',
@@ -44,7 +44,7 @@ export default function Home() {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'
-      style={{ backgroundImage: 'url(backdrop.png)', backgroundSize: 'cover' }}>
+      style={{ backgroundImage: 'url(bgch.png)', backgroundSize: 'cover' }}>
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
         data={data}
