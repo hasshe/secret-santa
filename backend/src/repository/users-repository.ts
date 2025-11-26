@@ -47,6 +47,22 @@ export async function getUserByName(name: string): Promise<UserDB | null> {
     return data;
 }
 
+export async function getUserByUsername(username: string, password: string): Promise<UserDB | null> {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
+
+    if (error) {
+        console.error(`Error fetching user with username ${username}:`, error);
+        return null;
+    }
+
+    return data;
+}
+
 export async function updateHasSpunStatusInDB(userId: number, hasSpunStatus: boolean, secretSantaName: string): Promise<UserDB | null> {
     const { data, error } = await supabase
         .from('users')

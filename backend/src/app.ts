@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { fetchUsers, updateHasSpunStatus } from './service/users-service';
+import { fetchUsers, updateHasSpunStatus, validateUserCredentials } from './service/users-service';
 import { mapUsersToUsersResponse } from './models/api-adapter';
 import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse } from './models/api-models';
 import cors from 'cors';
@@ -26,13 +26,22 @@ app.put('/has-spun', async (req: Request<HasSpunRequest>, res: Response) => {
   res.sendStatus(204);
 });
 
-app.post('/login', (req: Request<LoginRequest>, res: Response<LoginResponse>) => {
+app.post('/login', async (req: Request<LoginRequest>, res: Response<LoginResponse>) => {
   const { username, password } = req.body;
 
   const adminUsername = process.env.ADMIN_USERNAME || 'admin';
   const adminPassword = process.env.ADMIN_PASSWORD || 'password';
 
   if (username !== adminUsername) {
+    const isValidCredentials = await validateUserCredentials(username, password);
+    if (isValidCredentials) {
+      return res.status(200).json({ authenticated: true });
+    } else {
+      return res.status(401).json({ authenticated: false });
+    }
+  }
+
+  if (!password) {
     return res.status(401).json({ authenticated: false });
   }
   if (password === adminPassword) {

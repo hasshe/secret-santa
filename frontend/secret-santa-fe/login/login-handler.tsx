@@ -38,6 +38,7 @@ function callBackendLoginAPI(userName: string, password: string): Promise<boolea
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username: userName, password: password }),
+        credentials: 'include',
     })
         .then(response => response.json())
         .then(data => {

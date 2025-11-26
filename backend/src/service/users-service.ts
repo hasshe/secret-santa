@@ -1,6 +1,7 @@
 import { User } from './domain-models';
-import { getUserByName, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
+import { getUserByName, getUserByUsername, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
 import { UserDB } from "../repository/db-models";
+import { get } from 'http';
 
 export async function fetchUsers(): Promise<User[]> {
     const users = await getUsers();
@@ -19,6 +20,15 @@ export async function updateHasSpunStatus(name: string, hasSpun: boolean, secret
         throw error;
     }
     console.log(`Updating user ${name} hasSpun status to ${hasSpun} with secretSantaName ${secretSantaName}`);
+}
+
+export async function validateUserCredentials(username: string, password: string): Promise<boolean> {
+    const user = await getUserByUsername(username, password);
+    if (!user) {
+        return false;
+    }
+    // In a real application, passwords should be hashed and securely compared
+    return user.password === password;
 }
 
 function mapUserDBToDomain(userDB: UserDB): User {
