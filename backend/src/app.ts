@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { fetchUsers, updateHasSpunStatus, validateUserCredentials } from './service/users-service';
 import { mapUsersToUsersResponse } from './models/api-adapter';
-import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse } from './models/api-models';
+import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse, UserResponse } from './models/api-models';
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit'
@@ -28,8 +28,6 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
-  // TODO: add filter for yourself
-  // TODO: add filter for partners
   // TODO: add filter for already assigned
   // TODO: add filter if you already spun
 
@@ -47,11 +45,22 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
         return res.status(403).json({ error: 'User not found', users });
       }
 
+      if (currentUser.hasSpun) {
+        const assignedUser = users.find(user => user.name === currentUser.secretSanta);
+        if (!assignedUser) {
+          return res.status(404).json({ error: 'Assigned user not found', users: [] });
+        }
+        const responseAssignedUser: UserResponse = { name: assignedUser.name };
+        return res.status(200).json({ users: [responseAssignedUser] });
+      }
+
       const filteredUsers = users.filter(user => {
-        return user.username !== username && user.name !== currentUser.partnerName;
+        return user.username !== username &&
+          (!currentUser.partnerName || user.name !== currentUser.partnerName) &&
+          !user.hasSpun;
       });
 
-      return res.json(mapUsersToUsersResponse(filteredUsers));
+      return res.status(200).json(mapUsersToUsersResponse(filteredUsers));
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error', users: [] });
     }
@@ -62,7 +71,6 @@ app.put('/has-spun', async (req: Request<{}, any, HasSpunRequest>, res: Response
   const { hasSpun, secretSantaName } = req.body;
   verifyToken(req, res, async () => {
     const username = (req as any).user.username;
-    console.log(`Received has-spun update request for user ${username} to ${hasSpun} with secretSantaName ${secretSantaName}`);
     const result = await updateHasSpunStatus(username, hasSpun, secretSantaName);
     return res.status(200).json(result);
   });

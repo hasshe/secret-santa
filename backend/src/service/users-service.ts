@@ -12,6 +12,9 @@ export async function updateHasSpunStatus(username: string, hasSpun: boolean, se
     if (!targetUser) {
         throw new Error(`User ${username} not found`);
     }
+    if (targetUser.has_spun) {
+        return targetUser.secret_santa || '';
+    }
     const mappedTargetUser = mapUserDBToDomain(targetUser);
     const secretSantaUserDB = await getUserByName(secretSantaName);
     if (!secretSantaUserDB) {
