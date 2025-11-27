@@ -70,11 +70,11 @@ export default function Home() {
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
       <Wheel mustStartSpinning={mustSpin}
         prizeNumber={prizeNumber}
-        data={data}
+        data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
         backgroundColors={['#3c3535ff', '#e9e9e9ff']}
         textColors={['#ffffff']}
         onStopSpinning={() => setMustSpin(false)}
-        spinDuration={0.5}
+        spinDuration={0.9}
         disableInitialAnimation={true} />
       <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
         sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
@@ -82,7 +82,9 @@ export default function Home() {
       </Button>
       <Dialog open={hasSpun}>
         <div className="p-6" style={{ backgroundColor: '#ffffffff' }}>
-          <Typography variant="h4" fontWeight="bold">{data[prizeNumber].option}</Typography>
+          <Typography variant="h4" fontWeight="bold">
+            {data[prizeNumber]?.option || 'Loading...'}
+          </Typography>
         </div>
       </Dialog>
     </div>

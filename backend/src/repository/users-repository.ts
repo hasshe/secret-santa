@@ -21,15 +21,11 @@ export async function getUsers(): Promise<UserDB[]> {
         .from('users')
         .select('*');
 
-    const assignedNames = data?.map(user => user.secret_santa) || [];
-
-    const filteredData = data?.filter(user => !assignedNames.includes(user.name)) || [];
-
     if (error) {
         console.error('Error fetching users:', error);
         throw error;
     }
-    return filteredData;
+    return data || [];
 }
 
 export async function getUserByName(name: string): Promise<UserDB | null> {

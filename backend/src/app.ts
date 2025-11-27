@@ -47,7 +47,9 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
         return res.status(403).json({ error: 'User not found', users });
       }
 
-      return res.json(mapUsersToUsersResponse(users));
+      const filteredUsers = users.filter(user => user.username !== username);
+
+      return res.json(mapUsersToUsersResponse(filteredUsers));
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error', users: [] });
     }

@@ -1,7 +1,6 @@
 import { User } from './domain-models';
 import { getUserByName, getUserByUsername, getUserByUsernameAndPassword, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
 import { UserDB } from "../repository/db-models";
-import { get } from 'http';
 
 export async function fetchUsers(): Promise<User[]> {
     const users = await getUsers();
