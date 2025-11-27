@@ -41,13 +41,15 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
       const username = (req as any).user.username;
 
       const users = await fetchUsers();
-      const userExists = users.some(user => user.username === username);
+      const currentUser = users.find(user => user.username === username);
 
-      if (!userExists) {
+      if (currentUser === undefined) {
         return res.status(403).json({ error: 'User not found', users });
       }
 
-      const filteredUsers = users.filter(user => user.username !== username);
+      const filteredUsers = users.filter(user => {
+        return user.username !== username && user.name !== currentUser.partnerName;
+      });
 
       return res.json(mapUsersToUsersResponse(filteredUsers));
     } catch (error) {

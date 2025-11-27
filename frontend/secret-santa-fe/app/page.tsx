@@ -54,7 +54,9 @@ export default function Home() {
           }
         }));
         setData(wheelData);
-        setStartingOptionIndex(Math.floor(Math.random() * wheelData.length));
+        if (wheelData.length > 0) {
+          setStartingOptionIndex(Math.floor(Math.random() * wheelData.length));
+        }
       })
       .catch(err => console.error('Error fetching users:', err));
   }, [router]);
@@ -70,15 +72,25 @@ export default function Home() {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
-      <Wheel mustStartSpinning={mustSpin}
-        prizeNumber={prizeNumber}
-        data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
-        backgroundColors={['#3c3535ff', '#e9e9e9ff']}
-        textColors={['#ffffff']}
-        onStopSpinning={() => setMustSpin(false)}
-        spinDuration={0.4}
-        disableInitialAnimation={true}
-        startingOptionIndex={startingOptionIndex} />
+      {
+        data && data.length > 0 ? (
+          <Wheel mustStartSpinning={mustSpin}
+            prizeNumber={prizeNumber}
+            data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
+            backgroundColors={['#3c3535ff', '#e9e9e9ff']}
+            textColors={['#ffffff']}
+            onStopSpinning={() => setMustSpin(false)}
+            spinDuration={0.4}
+            disableInitialAnimation={true}
+            startingOptionIndex={startingOptionIndex} />
+        ) : <Dialog open={true}>
+          <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
+            <Typography variant="h4" fontWeight="bold" color='white'>
+              {'Insert Users Secret Santa Person Here'}
+            </Typography>
+          </div>
+        </Dialog>
+      }
       <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
         sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
         SPIN THE WHEEL

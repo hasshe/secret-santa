@@ -4,4 +4,5 @@ export interface User {
     username: string;
     hasSpun: boolean;
     secretSanta: string | null;
+    partnerName: string | null;
 }

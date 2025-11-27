@@ -8,12 +8,20 @@ export async function fetchUsers(): Promise<User[]> {
 }
 
 export async function updateHasSpunStatus(username: string, hasSpun: boolean, secretSantaName: string): Promise<string> {
-    const targetUser = await getUserByUsername(username) as User;
-    const secretSantaUser = await getUserByName(secretSantaName) as User;
-    validateUsers(targetUser, secretSantaUser);
+    const targetUser = await getUserByUsername(username);
+    if (!targetUser) {
+        throw new Error(`User ${username} not found`);
+    }
+    const mappedTargetUser = mapUserDBToDomain(targetUser);
+    const secretSantaUserDB = await getUserByName(secretSantaName);
+    if (!secretSantaUserDB) {
+        throw new Error(`Secret Santa user ${secretSantaName} not found`);
+    }
+    const secretSantaUser = mapUserDBToDomain(secretSantaUserDB);
+    validateUsers(mappedTargetUser, secretSantaUser);
 
     try {
-        await updateHasSpunStatusInDB(targetUser.id, hasSpun, secretSantaName);
+        await updateHasSpunStatusInDB(mappedTargetUser.id, hasSpun, secretSantaName);
         return secretSantaName;
     } catch (error) {
         console.error(`Error updating hasSpun status for user ${username}:`, error);
@@ -35,8 +43,9 @@ function mapUserDBToDomain(userDB: UserDB): User {
         id: userDB.id,
         name: userDB.name,
         username: userDB.username,
-        hasSpun: userDB.hasSpun,
-        secretSanta: userDB.secretSanta
+        hasSpun: userDB.has_spun,
+        secretSanta: userDB.secret_santa,
+        partnerName: userDB.partner_name
     };
 }
 
