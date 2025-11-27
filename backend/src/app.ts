@@ -28,8 +28,16 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
+  // TODO: add filter for yourself
+  // TODO: add filter for partners
+  // TODO: add filter for already assigned
+  // TODO: add filter if you already spun
+
+  // This is middleware that checks authentication
   verifyToken(req, res, async () => {
     try {
+      // This callback is the "next" function
+      // Only runs if token is valid
       const username = (req as any).user.username;
 
       const users = await fetchUsers();
@@ -44,13 +52,14 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
       return res.status(500).json({ error: 'Internal server error', users: [] });
     }
   });
-
 });
 
-app.put('/has-spun', async (req: Request<HasSpunRequest>, res: Response) => {
-  const { name, hasSpun, secretSantaName, token } = req.body;
-  await updateHasSpunStatus(name, hasSpun, secretSantaName);
-  res.sendStatus(204);
+app.put('/has-spun', async (req: Request, res: Response) => {
+  const { name, hasSpun, secretSantaName } = req.body as HasSpunRequest;
+  verifyToken(req, res, async () => {
+    await updateHasSpunStatus(name, hasSpun, secretSantaName);
+    res.sendStatus(204);
+  });
 });
 
 app.post('/login', async (req: Request<LoginRequest>, res: Response<LoginResponse>) => {
@@ -81,6 +90,12 @@ app.post('/verify-token', (_, res: Response<{ valid: boolean }>) => {
   });
 });
 
+/**
+ * Middleware function to verify JWT tokens in incoming requests
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param next - Callback function to pass control to the next middleware
+ */
 function verifyToken(req: Request, res: Response, next: Function) {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
@@ -90,8 +105,11 @@ function verifyToken(req: Request, res: Response, next: Function) {
   }
 
   try {
+    // Verify the token using the JWT secret and decode the payload
     const decoded = jwt.verify(token, JWT_SECRET) as { username: string };
+    // Attach the decoded user information to the request object for downstream use
     (req as any).user = decoded;
+    // Pass control to the next middleware or route handler
     next();
   } catch (error) {
     return res.status(401).json({ valid: false, message: 'Invalid token' });
@@ -99,3 +117,20 @@ function verifyToken(req: Request, res: Response, next: Function) {
 }
 
 export default app;
+
+/**
+Middleware is a function that sits between the incoming request and the final route handler in Express.js. It has access to the request object (req), response object (res), and a next function.
+
+Key characteristics:
+
+Executes in sequence - Middleware functions run in the order they're defined
+Can modify req/res - They can read/modify request and response objects
+Controls flow - Calls next() to pass control to the next middleware, or sends a response to end the request-response cycle
+Common uses:
+
+Authentication/authorization (like your verifyToken)
+Logging
+Parsing request bodies
+Error handling
+Rate limiting
+ */

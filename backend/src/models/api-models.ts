@@ -8,7 +8,7 @@ export interface UsersResponse {
 }
 
 export interface HasSpunRequest {
-    name: number;
+    name: string;
     hasSpun: boolean;
     secretSantaName: string;
     token: string;
