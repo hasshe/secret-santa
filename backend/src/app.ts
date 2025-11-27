@@ -28,9 +28,6 @@ const limiter = rateLimit({
 app.use(limiter)
 
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
-  // TODO: add filter for already assigned
-  // TODO: add filter if you already spun
-
   // This is middleware that checks authentication
   verifyToken(req, res, async () => {
     try {
