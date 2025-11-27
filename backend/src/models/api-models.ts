@@ -1,5 +1,6 @@
 export interface UserResponse {
     name: string;
+    hasSpun?: boolean;
 }
 
 export interface UsersResponse {

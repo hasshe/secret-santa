@@ -47,7 +47,7 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
         if (!assignedUser) {
           return res.status(404).json({ error: 'Assigned user not found', users: [] });
         }
-        const responseAssignedUser: UserResponse = { name: assignedUser.name };
+        const responseAssignedUser: UserResponse = { name: assignedUser.name, hasSpun: true };
         return res.status(200).json({ users: [responseAssignedUser] });
       }
 

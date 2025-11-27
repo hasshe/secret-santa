@@ -21,6 +21,8 @@ export default function Home() {
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [hasSpunOnce, setHasSpunOnce] = useState(false);
   const [startingOptionIndex, setStartingOptionIndex] = useState(0);
+  const [userAlreadySpun, setUserAlreadySpun] = useState(false);
+  const [secretSantaName, setSecretSantaName] = useState<string | null>(null);
   const hasSpun = hasSpunOnce && mustSpin === false;
 
   useEffect(() => {
@@ -46,6 +48,8 @@ export default function Home() {
           router.push('/login');
           return;
         }
+        setUserAlreadySpun(usersResponse.users.some((user: { hasSpun?: boolean }) => user.hasSpun));
+        setSecretSantaName(usersResponse.users.length === 1 ? usersResponse.users[0].name : null);
         const wheelData = usersResponse.users.map((user: { id: number; name: string }, index: number) => ({
           option: user.name,
           style: {
@@ -73,7 +77,7 @@ export default function Home() {
   return (
     <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
       {
-        data && data.length > 0 ? (
+        data && data.length > 0 && !userAlreadySpun && secretSantaName === null ? (
           <Wheel mustStartSpinning={mustSpin}
             prizeNumber={prizeNumber}
             data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
@@ -86,7 +90,9 @@ export default function Home() {
         ) : <Dialog open={true}>
           <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
             <Typography variant="h4" fontWeight="bold" color='white'>
-              {'Insert Users Secret Santa Person Here'}
+              {secretSantaName
+                ? `Your are Secret Santa for: ${secretSantaName}`
+                : 'Something went wrong, contact the admin.'}
             </Typography>
           </div>
         </Dialog>
