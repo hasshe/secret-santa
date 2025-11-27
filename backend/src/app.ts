@@ -41,7 +41,7 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
       const username = (req as any).user.username;
 
       const users = await fetchUsers();
-      const userExists = users.some(user => user.name === username);
+      const userExists = users.some(user => user.username === username);
 
       if (!userExists) {
         return res.status(403).json({ error: 'User not found', users });
@@ -54,11 +54,13 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
   });
 });
 
-app.put('/has-spun', async (req: Request, res: Response) => {
-  const { name, hasSpun, secretSantaName } = req.body as HasSpunRequest;
+app.put('/has-spun', async (req: Request<{}, any, HasSpunRequest>, res: Response<string>) => {
+  const { hasSpun, secretSantaName } = req.body;
   verifyToken(req, res, async () => {
-    await updateHasSpunStatus(name, hasSpun, secretSantaName);
-    res.sendStatus(204);
+    const username = (req as any).user.username;
+    console.log(`Received has-spun update request for user ${username} to ${hasSpun} with secretSantaName ${secretSantaName}`);
+    const result = await updateHasSpunStatus(username, hasSpun, secretSantaName);
+    return res.status(200).json(result);
   });
 });
 

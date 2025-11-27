@@ -3,6 +3,6 @@ export interface UserDB {
     name: string;
     username: string;
     password: string;
-    has_spun: boolean;
-    secret_santa: string | null;
+    hasSpun: boolean;
+    secretSanta: string | null;
 }

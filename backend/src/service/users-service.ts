@@ -1,5 +1,5 @@
 import { User } from './domain-models';
-import { getUserByName, getUserByUsername, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
+import { getUserByName, getUserByUsername, getUserByUsernameAndPassword, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
 import { UserDB } from "../repository/db-models";
 import { get } from 'http';
 
@@ -8,22 +8,22 @@ export async function fetchUsers(): Promise<User[]> {
     return users.map(mapUserDBToDomain);
 }
 
-export async function updateHasSpunStatus(name: string, hasSpun: boolean, secretSantaName: string): Promise<void> {
-    const targetUser = await getUserByName(name) as User;
+export async function updateHasSpunStatus(username: string, hasSpun: boolean, secretSantaName: string): Promise<string> {
+    const targetUser = await getUserByUsername(username) as User;
     const secretSantaUser = await getUserByName(secretSantaName) as User;
     validateUsers(targetUser, secretSantaUser);
 
     try {
         await updateHasSpunStatusInDB(targetUser.id, hasSpun, secretSantaName);
+        return secretSantaName;
     } catch (error) {
-        console.error(`Error updating hasSpun status for user ${name}:`, error);
+        console.error(`Error updating hasSpun status for user ${username}:`, error);
         throw error;
     }
-    console.log(`Updating user ${name} hasSpun status to ${hasSpun} with secretSantaName ${secretSantaName}`);
 }
 
 export async function validateUserCredentials(username: string, password: string): Promise<boolean> {
-    const user = await getUserByUsername(username, password);
+    const user = await getUserByUsernameAndPassword(username, password);
     if (!user) {
         return false;
     }
@@ -35,6 +35,9 @@ function mapUserDBToDomain(userDB: UserDB): User {
     return {
         id: userDB.id,
         name: userDB.name,
+        username: userDB.username,
+        hasSpun: userDB.hasSpun,
+        secretSanta: userDB.secretSanta
     };
 }
 

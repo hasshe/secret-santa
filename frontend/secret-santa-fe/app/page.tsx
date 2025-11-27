@@ -62,6 +62,8 @@ export default function Home() {
     setPrizeNumber(newPrizeNumber);
     setMustSpin(true);
     setHasSpunOnce(true);
+    const selectedUserName = data[newPrizeNumber].option;
+    updateHasSpunStatus(true, selectedUserName);
   };
 
   return (
@@ -85,4 +87,26 @@ export default function Home() {
       </Dialog>
     </div>
   );
+}
+
+function updateHasSpunStatus(hasSpun: boolean, secretSantaName: string) {
+  const token = Cookies.get('token');
+  return fetch('http://localhost:3000/has-spun', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ hasSpun, secretSantaName }),
+    credentials: 'include',
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to update hasSpun status');
+      }
+      return response.text();
+    })
+    .catch(error => {
+      console.error('Error updating hasSpun status:', error);
+    });
 }

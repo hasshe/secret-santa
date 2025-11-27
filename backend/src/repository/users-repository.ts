@@ -47,7 +47,22 @@ export async function getUserByName(name: string): Promise<UserDB | null> {
     return data;
 }
 
-export async function getUserByUsername(username: string, password: string): Promise<UserDB | null> {
+export async function getUserByUsername(username: string): Promise<UserDB | null> {
+    const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .single();
+
+    if (error) {
+        console.error(`Error fetching user with username ${username}:`, error);
+        return null;
+    }
+
+    return data;
+}
+
+export async function getUserByUsernameAndPassword(username: string, password: string): Promise<UserDB | null> {
     const { data, error } = await supabase
         .from('users')
         .select('*')
