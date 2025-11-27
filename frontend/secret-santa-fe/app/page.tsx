@@ -12,7 +12,6 @@ const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wh
 });
 
 export default function Home() {
-  //TODO: keep track of current user and know if they have spun already
   const router = useRouter();
 
   const [data, setData] = useState([
