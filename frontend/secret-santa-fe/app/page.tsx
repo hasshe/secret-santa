@@ -20,6 +20,7 @@ export default function Home() {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [hasSpunOnce, setHasSpunOnce] = useState(false);
+  const [startingOptionIndex, setStartingOptionIndex] = useState(0);
   const hasSpun = hasSpunOnce && mustSpin === false;
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function Home() {
           }
         }));
         setData(wheelData);
+        setStartingOptionIndex(Math.floor(Math.random() * wheelData.length));
       })
       .catch(err => console.error('Error fetching users:', err));
   }, [router]);
@@ -74,8 +76,9 @@ export default function Home() {
         backgroundColors={['#3c3535ff', '#e9e9e9ff']}
         textColors={['#ffffff']}
         onStopSpinning={() => setMustSpin(false)}
-        spinDuration={0.9}
-        disableInitialAnimation={true} />
+        spinDuration={0.4}
+        disableInitialAnimation={true}
+        startingOptionIndex={startingOptionIndex} />
       <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
         sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
         SPIN THE WHEEL
