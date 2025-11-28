@@ -53,7 +53,7 @@ export function ActiveProfile({ name }: ActiveProfileProps) {
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
             <Typography variant="h6" component="span"
-                style={{ marginLeft: 10, fontSize: 20, color: 'white', fontWeight: 'bold', marginTop: 10 }}>{name}</Typography>
+                style={{ marginLeft: 10, fontSize: 20, color: 'white', fontWeight: 'bold', marginTop: 10 }}>@{name}</Typography>
         </div>
     );
 }
