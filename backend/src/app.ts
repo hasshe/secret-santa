@@ -95,6 +95,13 @@ app.post('/login', async (req: Request<LoginRequest>, res: Response<LoginRespons
   }
 });
 
+app.get('/current-user', (req: Request, res: Response<UserResponse | { error: string }>) => {
+  verifyToken(req, res, () => {
+    const username = (req as any).user.username;
+    return res.status(200).json({ name: username });
+  });
+});
+
 app.post('/verify-token', (_, res: Response<{ valid: boolean }>) => {
   verifyToken(_, res, () => {
     res.status(200).json({ valid: true });

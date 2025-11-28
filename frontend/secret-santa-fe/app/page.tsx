@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
+import { ActiveProfile } from './active-profile';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
@@ -23,7 +24,24 @@ export default function Home() {
   const [startingOptionIndex, setStartingOptionIndex] = useState(0);
   const [userAlreadySpun, setUserAlreadySpun] = useState(false);
   const [secretSantaName, setSecretSantaName] = useState<string | null>(null);
+  const [currentLoggedInUser, setCurrentLoggedInUser] = useState<string | null>(null);
   const hasSpun = hasSpunOnce && mustSpin === false;
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      fetch('http://localhost:3000/current-user', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          setCurrentLoggedInUser(data.name);
+        })
+        .catch(err => console.error('Error fetching current user:', err));
+    }
+  }, []);
 
   useEffect(() => {
     const authStatus = Cookies.get('authenticated');
@@ -75,39 +93,42 @@ export default function Home() {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
-      {
-        data && data.length > 0 && !userAlreadySpun && secretSantaName === null ? (
-          <Wheel mustStartSpinning={mustSpin}
-            prizeNumber={prizeNumber}
-            data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
-            backgroundColors={['#3c3535ff', '#e9e9e9ff']}
-            textColors={['#ffffff']}
-            onStopSpinning={() => setMustSpin(false)}
-            spinDuration={0.4}
-            disableInitialAnimation={true}
-            startingOptionIndex={startingOptionIndex} />
-        ) : <Dialog open={true}>
-          <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
-            <Typography variant="h4" fontWeight="bold" color='white'>
-              {secretSantaName
-                ? `Your are Secret Santa for: ${secretSantaName}`
-                : 'Something went wrong, contact the admin.'}
+    <div>
+      <ActiveProfile name={currentLoggedInUser || 'Guest'} />
+      <div className='flex flex-col items-center justify-center min-h-screen gap-8'>
+        {
+          data && data.length > 0 && !userAlreadySpun && secretSantaName === null ? (
+            <Wheel mustStartSpinning={mustSpin}
+              prizeNumber={prizeNumber}
+              data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
+              backgroundColors={['#3c3535ff', '#e9e9e9ff']}
+              textColors={['#ffffff']}
+              onStopSpinning={() => setMustSpin(false)}
+              spinDuration={0.4}
+              disableInitialAnimation={true}
+              startingOptionIndex={startingOptionIndex} />
+          ) : <Dialog open={true}>
+            <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
+              <Typography variant="h4" fontWeight="bold" color='white'>
+                {secretSantaName
+                  ? `Your are Secret Santa for: ${secretSantaName}`
+                  : 'Something went wrong, contact the admin.'}
+              </Typography>
+            </div>
+          </Dialog>
+        }
+        <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
+          sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
+          SPIN THE WHEEL
+        </Button>
+        <Dialog open={hasSpun}>
+          <div className="p-6" style={{ backgroundColor: '#ffffffff' }}>
+            <Typography variant="h4" fontWeight="bold">
+              {data[prizeNumber]?.option || 'Loading...'}
             </Typography>
           </div>
         </Dialog>
-      }
-      <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
-        sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
-        SPIN THE WHEEL
-      </Button>
-      <Dialog open={hasSpun}>
-        <div className="p-6" style={{ backgroundColor: '#ffffffff' }}>
-          <Typography variant="h4" fontWeight="bold">
-            {data[prizeNumber]?.option || 'Loading...'}
-          </Typography>
-        </div>
-      </Dialog>
+      </div>
     </div>
   );
 }
