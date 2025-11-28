@@ -20,10 +20,14 @@ export function ActiveProfile({ name }: ActiveProfileProps) {
     };
     const handleClose = () => {
         setAnchorEl(null);
-        Cookies.remove('token');
+    };
+
+    const handleLogout = () => {
         Cookies.remove('authenticated');
+        Cookies.remove('token');
         router.push('/login');
     };
+
     return (
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
             <IconButton
@@ -46,7 +50,7 @@ export function ActiveProfile({ name }: ActiveProfileProps) {
                     },
                 }}
             >
-                <MenuItem onClick={handleClose}>Logout</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
             </Menu>
             <Typography variant="h6" component="span"
                 style={{ marginLeft: 10, fontSize: 20, color: 'white', fontWeight: 'bold', marginTop: 10 }}>{name}</Typography>
