@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for secret-santa-backend-fly on 2025-11-30T20:30:38+01:00
+# fly.toml app configuration file generated for secret-santa-backend on 2025-11-30T21:12:34+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'secret-santa-backend-fly'
-primary_region = 'iad'
+app = 'secret-santa-backend'
+primary_region = 'fra'
 
 [build]
 
