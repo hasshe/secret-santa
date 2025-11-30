@@ -1,12 +1,13 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Dialog from '@mui/material/Dialog';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { ActiveProfile } from './active-profile';
+import io from 'socket.io-client';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
@@ -20,12 +21,10 @@ export default function Home() {
   ]);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  const [hasSpunOnce, setHasSpunOnce] = useState(false);
   const [startingOptionIndex, setStartingOptionIndex] = useState(0);
   const [userAlreadySpun, setUserAlreadySpun] = useState(false);
   const [secretSantaName, setSecretSantaName] = useState<string | null>(null);
   const [currentLoggedInUser, setCurrentLoggedInUser] = useState<string | null>(null);
-  const hasSpun = hasSpunOnce && mustSpin === false;
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -52,7 +51,15 @@ export default function Home() {
     }
   }, [router]);
 
-  useEffect(() => {
+  const handleSpinClick = () => {
+    const newPrizeNumber = Math.floor(Math.random() * data.length);
+    setPrizeNumber(newPrizeNumber);
+    setMustSpin(true);
+    const selectedUserName = data[newPrizeNumber].option;
+    updateHasSpunStatus(true, selectedUserName);
+  };
+
+  const fetchCurrentUser = useCallback(() => {
     const token = Cookies.get('token');
     fetch('http://localhost:3000/users', {
       headers: {
@@ -83,14 +90,22 @@ export default function Home() {
       .catch(err => console.error('Error fetching users:', err));
   }, [router]);
 
-  const handleSpinClick = () => {
-    const newPrizeNumber = Math.floor(Math.random() * data.length);
-    setPrizeNumber(newPrizeNumber);
-    setMustSpin(true);
-    setHasSpunOnce(true);
-    const selectedUserName = data[newPrizeNumber].option;
-    updateHasSpunStatus(true, selectedUserName);
-  };
+  useEffect(() => {
+    fetchCurrentUser();
+  }, [fetchCurrentUser]);
+
+  useEffect(() => {
+    const socket = io('http://localhost:3000');
+    const handler = (message: unknown) => {
+      console.log('Received hasSpunUpdated message:', message);
+      fetchCurrentUser();
+    };
+    socket.on('hasSpunUpdated', handler);
+    return () => {
+      socket.off('hasSpunUpdated', handler);
+      socket.disconnect();
+    };
+  }, [fetchCurrentUser]);
 
   return (
     <div>
@@ -121,13 +136,6 @@ export default function Home() {
           sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
           SPIN THE WHEEL
         </Button>
-        <Dialog open={hasSpun}>
-          <div className="p-6" style={{ backgroundColor: '#ffffffff' }}>
-            <Typography variant="h4" fontWeight="bold">
-              {data[prizeNumber]?.option || 'Loading...'}
-            </Typography>
-          </div>
-        </Dialog>
       </div>
     </div>
   );

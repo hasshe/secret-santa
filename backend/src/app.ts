@@ -5,9 +5,17 @@ import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse, UserRespons
 import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit'
+import http from "http";
+import { Server } from "socket.io";
 
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: { origin: "*" }
+});
 
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -20,13 +28,14 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 50,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })
 
 app.use(limiter)
 
+//REFACTOR THIS FUNCTION
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
   // This is middleware that checks authentication
   verifyToken(req, res, async () => {
@@ -51,10 +60,17 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
         return res.status(200).json({ users: [responseAssignedUser] });
       }
 
+      const assignedNames = new Set(
+        users
+          .map(u => u.secretSanta)
+          .filter((n): n is string => typeof n === 'string' && n.length > 0)
+      );
+
       const filteredUsers = users.filter(user => {
         return user.username !== username &&
           (!currentUser.partnerName || user.name !== currentUser.partnerName) &&
-          !user.hasSpun;
+          !user.hasSpun &&
+          !assignedNames.has(user.name);
       });
 
       return res.status(200).json(mapUsersToUsersResponse(filteredUsers));
@@ -69,6 +85,7 @@ app.put('/has-spun', async (req: Request<{}, any, HasSpunRequest>, res: Response
   verifyToken(req, res, async () => {
     const username = (req as any).user.username;
     const result = await updateHasSpunStatus(username, hasSpun, secretSantaName);
+    io.emit('hasSpunUpdated', { triggeredBy: (req as any).user.username });
     return res.status(200).json(result);
   });
 });
@@ -108,6 +125,10 @@ app.post('/verify-token', (_, res: Response<{ valid: boolean }>) => {
   });
 });
 
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+});
+
 /**
  * Middleware function to verify JWT tokens in incoming requests
  * @param req - Express request object
@@ -134,6 +155,7 @@ function verifyToken(req: Request, res: Response, next: Function) {
   }
 }
 
+export { httpServer };
 export default app;
 
 /**
