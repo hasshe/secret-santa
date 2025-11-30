@@ -25,6 +25,9 @@ export default function Home() {
   const [userAlreadySpun, setUserAlreadySpun] = useState(false);
   const [secretSantaName, setSecretSantaName] = useState<string | null>(null);
   const [currentLoggedInUser, setCurrentLoggedInUser] = useState<string | null>(null);
+  // hold the selected name until the spin animation finishes
+  const [pendingSecretSantaName, setPendingSecretSantaName] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -51,12 +54,14 @@ export default function Home() {
     }
   }, [router]);
 
+  // start the spin and store the chosen name locally.
+  // only update server after animation finishes (in onStopSpinning).
   const handleSpinClick = () => {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
     setPrizeNumber(newPrizeNumber);
-    setMustSpin(true);
     const selectedUserName = data[newPrizeNumber].option;
-    updateHasSpunStatus(true, selectedUserName);
+    setPendingSecretSantaName(selectedUserName);
+    setMustSpin(true);
   };
 
   const fetchCurrentUser = useCallback(() => {
@@ -118,7 +123,21 @@ export default function Home() {
               data={data ? data : [{ option: "No Data", style: { backgroundColor: 'red', textColor: 'white' } }]}
               backgroundColors={['#3c3535ff', '#e9e9e9ff']}
               textColors={['#ffffff']}
-              onStopSpinning={() => setMustSpin(false)}
+              // when spin stops, send the update to the server so UI doesn't jump away mid-animation
+              onStopSpinning={async () => {
+                setIsUpdating(true);
+                if (pendingSecretSantaName) {
+                  try {
+                    await updateHasSpunStatus(true, pendingSecretSantaName);
+                    setPendingSecretSantaName(null);
+                  } catch (e) {
+                    console.error('Failed to update hasSpun after spin:', e);
+                  }
+                }
+                setMustSpin(false);
+                setIsUpdating(false);
+              }}
+              // set a visible spin duration (seconds)
               spinDuration={0.4}
               disableInitialAnimation={true}
               startingOptionIndex={startingOptionIndex} />
@@ -132,7 +151,7 @@ export default function Home() {
             </div>
           </Dialog>
         }
-        <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin}
+        <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin || isUpdating}
           sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
           SPIN THE WHEEL
         </Button>
