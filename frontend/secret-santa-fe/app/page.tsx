@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import { ActiveProfile } from './active-profile';
 import io from 'socket.io-client';
 import Divider from '@mui/material/Divider';
+import CountdownTimer from './countdown-timer';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
@@ -140,7 +141,7 @@ export default function Home() {
               startingOptionIndex={startingOptionIndex} />
           ) :
             <Dialog open={true}>
-              <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
+              <div className="flex flex-col items-center justify-center p-6" style={{ backgroundColor: '#000000ff', minWidth: 360 }}>
                 <Typography variant="h4" fontWeight="bold" color='white'>
                   {secretSantaName
                     ? `Your are Secret Santa for: ${secretSantaName}`
@@ -151,6 +152,7 @@ export default function Home() {
                   Budget: ~200kr
                 </Typography>
               </div>
+              <CountdownTimer />
             </Dialog>
         }
         <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin || isUpdating}

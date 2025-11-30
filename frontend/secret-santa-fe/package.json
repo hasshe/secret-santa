@@ -19,6 +19,8 @@
     "next": "16.0.3",
     "react": "19.2.0",
     "react-confetti": "^6.4.0",
+    "react-countdown": "^2.3.6",
+    "react-countdown-circle-timer": "^3.2.1",
     "react-custom-roulette": "^1.4.1",
     "react-dom": "19.2.0",
     "react-snowfall": "^2.3.0",
