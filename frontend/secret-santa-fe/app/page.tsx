@@ -141,11 +141,12 @@ export default function Home() {
               startingOptionIndex={startingOptionIndex} />
           ) :
             <Dialog open={true}>
-              <div className="flex flex-col items-center justify-center p-6" style={{ backgroundColor: '#000000ff', minWidth: 360 }}>
-                <Typography variant="h4" fontWeight="bold" color='white'>
-                  {secretSantaName
-                    ? `Your are Secret Santa for: ${secretSantaName}`
-                    : 'Something went wrong, contact the admin.'}
+              <div className="flex flex-col items-center justify-center p-6" style={{ backgroundColor: '#000000ff', minWidth: 400 }}>
+                <Typography variant="h6" fontWeight="bold" color="white" align="center">
+                  You are Secret Santa for:
+                </Typography>
+                <Typography variant="h4" fontWeight="bold" color="white" align="center" sx={{ mt: 1 }}>
+                  {secretSantaName ? secretSantaName : 'Something went wrong, contact the admin.'}
                 </Typography>
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="body1" color='white'>
