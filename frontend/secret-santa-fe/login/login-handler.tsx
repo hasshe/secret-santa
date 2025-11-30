@@ -1,5 +1,7 @@
 import Cookies from "js-cookie";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 export function handleLogin(userName: string, password: string,
     setUserNameError: (error: boolean) => void, setPasswordError: (error: boolean) => void,
     router: { push: (path: string) => void }) {
@@ -35,7 +37,7 @@ export function handleLogin(userName: string, password: string,
 }
 
 function callBackendLoginAPI(userName: string, password: string): Promise<{ authenticated: boolean, token?: string }> {
-    return fetch('http://localhost:3000/login', {
+    return fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
