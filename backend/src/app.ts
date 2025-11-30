@@ -13,12 +13,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 const httpServer = http.createServer(app);
 
+// Use FRONTEND_URL to allow the production frontend origin to connect to Socket.IO
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
+
 const io = new Server(httpServer, {
-  cors: { origin: "*" }
+  cors: {
+    // When running in production set FRONTEND_URL to the frontend origin
+    origin: process.env.FRONTEND_URL ? FRONTEND_URL : '*',
+    credentials: true,
+  }
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+  origin: FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']

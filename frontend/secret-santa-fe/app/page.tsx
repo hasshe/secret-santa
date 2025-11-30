@@ -168,7 +168,7 @@ export default function Home() {
 }
 async function updateHasSpunStatus(hasSpun: boolean, secretSantaName: string) {
   const token = Cookies.get('token');
-  return fetch('http://localhost:3000/has-spun', {
+  return fetch(`${API_BASE}/has-spun`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
