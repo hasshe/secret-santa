@@ -33,4 +33,4 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 # Default command: run the compiled server
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
