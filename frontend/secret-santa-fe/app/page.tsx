@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { ActiveProfile } from './active-profile';
 import io from 'socket.io-client';
+import Divider from '@mui/material/Divider';
 
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
@@ -25,7 +26,6 @@ export default function Home() {
   const [userAlreadySpun, setUserAlreadySpun] = useState(false);
   const [secretSantaName, setSecretSantaName] = useState<string | null>(null);
   const [currentLoggedInUser, setCurrentLoggedInUser] = useState<string | null>(null);
-  // hold the selected name until the spin animation finishes
   const [pendingSecretSantaName, setPendingSecretSantaName] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -54,8 +54,6 @@ export default function Home() {
     }
   }, [router]);
 
-  // start the spin and store the chosen name locally.
-  // only update server after animation finishes (in onStopSpinning).
   const handleSpinClick = () => {
     const newPrizeNumber = Math.floor(Math.random() * data.length);
     setPrizeNumber(newPrizeNumber);
@@ -101,7 +99,7 @@ export default function Home() {
 
   useEffect(() => {
     const socket = io('http://localhost:3000');
-    const handler = (message: unknown) => {
+    const handler = (message: string) => {
       console.log('Received hasSpunUpdated message:', message);
       fetchCurrentUser();
     };
@@ -137,19 +135,23 @@ export default function Home() {
                 setMustSpin(false);
                 setIsUpdating(false);
               }}
-              // set a visible spin duration (seconds)
               spinDuration={0.4}
               disableInitialAnimation={true}
               startingOptionIndex={startingOptionIndex} />
-          ) : <Dialog open={true}>
-            <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
-              <Typography variant="h4" fontWeight="bold" color='white'>
-                {secretSantaName
-                  ? `Your are Secret Santa for: ${secretSantaName}`
-                  : 'Something went wrong, contact the admin.'}
-              </Typography>
-            </div>
-          </Dialog>
+          ) :
+            <Dialog open={true}>
+              <div className="p-6" style={{ backgroundColor: '#000000ff' }}>
+                <Typography variant="h4" fontWeight="bold" color='white'>
+                  {secretSantaName
+                    ? `Your are Secret Santa for: ${secretSantaName}`
+                    : 'Something went wrong, contact the admin.'}
+                </Typography>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="body1" color='white'>
+                  Budget: ~200kr
+                </Typography>
+              </div>
+            </Dialog>
         }
         <Button variant="contained" onClick={handleSpinClick} disabled={mustSpin || isUpdating}
           sx={{ fontWeight: 'bold', backgroundColor: 'white', color: 'red', '&:hover': { backgroundColor: '#d12020ff' } }}>
@@ -159,8 +161,7 @@ export default function Home() {
     </div>
   );
 }
-
-function updateHasSpunStatus(hasSpun: boolean, secretSantaName: string) {
+async function updateHasSpunStatus(hasSpun: boolean, secretSantaName: string) {
   const token = Cookies.get('token');
   return fetch('http://localhost:3000/has-spun', {
     method: 'PUT',
