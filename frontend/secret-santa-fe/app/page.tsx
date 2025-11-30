@@ -11,6 +11,8 @@ import io from 'socket.io-client';
 import Divider from '@mui/material/Divider';
 import CountdownTimer from './countdown-timer';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+
 const Wheel = dynamic(() => import('react-custom-roulette').then((mod) => mod.Wheel), {
   ssr: false,
 });
@@ -33,7 +35,7 @@ export default function Home() {
   useEffect(() => {
     const token = Cookies.get('token');
     if (token) {
-      fetch('http://localhost:3000/current-user', {
+      fetch(`${API_BASE}/current-user`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -65,7 +67,7 @@ export default function Home() {
 
   const fetchCurrentUser = useCallback(() => {
     const token = Cookies.get('token');
-    fetch('http://localhost:3000/users', {
+    fetch(`${API_BASE}/users`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -99,7 +101,7 @@ export default function Home() {
   }, [fetchCurrentUser]);
 
   useEffect(() => {
-    const socket = io('http://localhost:3000');
+    const socket = io(API_BASE);
     const handler = (message: string) => {
       console.log('Received hasSpunUpdated message:', message);
       fetchCurrentUser();
