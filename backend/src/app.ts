@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { fetchUsers, updateHasSpunStatus, validateUserCredentials } from './service/users-service';
+import { fetchUsers, fetchAvailableUsers, getCurrentUser, getUserByName, updateHasSpunStatus, validateUserCredentials } from './service/users-service';
 import { mapUsersToUsersResponse } from './models/api-adapter';
 import { HasSpunRequest, LoginRequest, LoginResponse, UsersResponse, UserResponse } from './models/api-models';
 import jwt from 'jsonwebtoken';
@@ -35,7 +35,6 @@ const limiter = rateLimit({
 
 app.use(limiter)
 
-//REFACTOR THIS FUNCTION
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
   // This is middleware that checks authentication
   verifyToken(req, res, async () => {
@@ -44,15 +43,15 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
       // Only runs if token is valid
       const username = (req as any).user.username;
 
-      const users = await fetchUsers();
-      const currentUser = users.find(user => user.username === username);
-
-      if (currentUser === undefined) {
-        return res.status(403).json({ error: 'User not found', users });
+      const currentUser = await getCurrentUser(username);
+      if (!currentUser) {
+        return res.status(403).json({ error: 'User not found', users: [] });
       }
 
+      const users = await fetchAvailableUsers(username, currentUser.partnerName);
+
       if (currentUser.hasSpun) {
-        const assignedUser = users.find(user => user.name === currentUser.secretSanta);
+        const assignedUser = await getUserByName(currentUser.secretSanta || '');
         if (!assignedUser) {
           return res.status(404).json({ error: 'Assigned user not found', users: [] });
         }
@@ -60,20 +59,7 @@ app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
         return res.status(200).json({ users: [responseAssignedUser] });
       }
 
-      const assignedNames = new Set(
-        users
-          .map(u => u.secretSanta)
-          .filter((n): n is string => typeof n === 'string' && n.length > 0)
-      );
-
-      const filteredUsers = users.filter(user => {
-        return user.username !== username &&
-          (!currentUser.partnerName || user.name !== currentUser.partnerName) &&
-          !user.hasSpun &&
-          !assignedNames.has(user.name);
-      });
-
-      return res.status(200).json(mapUsersToUsersResponse(filteredUsers));
+      return res.status(200).json(mapUsersToUsersResponse(users));
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error', users: [] });
     }

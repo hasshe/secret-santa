@@ -28,7 +28,19 @@ export async function getUsers(): Promise<UserDB[]> {
     return data || [];
 }
 
-export async function getUserByName(name: string): Promise<UserDB | null> {
+export async function getAvailableUsers(requestingUsername: string, partnerName?: string | null): Promise<UserDB[]> {
+    const all = await getUsers();
+    const assignedNames = new Set(all.map(u => u.secret_santa)
+        .filter((n): n is string => typeof n === 'string' && n.length > 0));
+    return all.filter(user =>
+        user.username !== requestingUsername &&
+        (!partnerName || user.name !== partnerName) &&
+        !user.has_spun &&
+        !assignedNames.has(user.name)
+    );
+}
+
+export async function fetchUserByName(name: string): Promise<UserDB | null> {
     const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -39,7 +51,6 @@ export async function getUserByName(name: string): Promise<UserDB | null> {
         console.error(`Error fetching user with name ${name}:`, error);
         return null;
     }
-
     return data;
 }
 
@@ -54,7 +65,6 @@ export async function getUserByUsername(username: string): Promise<UserDB | null
         console.error(`Error fetching user with username ${username}:`, error);
         return null;
     }
-
     return data;
 }
 

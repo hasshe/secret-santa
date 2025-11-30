@@ -1,9 +1,14 @@
 import { User } from './domain-models';
-import { getUserByName, getUserByUsername, getUserByUsernameAndPassword, getUsers, updateHasSpunStatusInDB } from "../repository/users-repository";
+import { fetchUserByName, getUserByUsername, getUserByUsernameAndPassword, getUsers, updateHasSpunStatusInDB, getAvailableUsers } from "../repository/users-repository";
 import { UserDB } from "../repository/db-models";
 
 export async function fetchUsers(): Promise<User[]> {
     const users = await getUsers();
+    return users.map(mapUserDBToDomain);
+}
+
+export async function fetchAvailableUsers(requestingUsername: string, partnerName?: string | null): Promise<User[]> {
+    const users = await getAvailableUsers(requestingUsername, partnerName);
     return users.map(mapUserDBToDomain);
 }
 
@@ -16,7 +21,7 @@ export async function updateHasSpunStatus(username: string, hasSpun: boolean, se
         return targetUser.secret_santa || '';
     }
     const mappedTargetUser = mapUserDBToDomain(targetUser);
-    const secretSantaUserDB = await getUserByName(secretSantaName);
+    const secretSantaUserDB = await fetchUserByName(secretSantaName);
     if (!secretSantaUserDB) {
         throw new Error(`Secret Santa user ${secretSantaName} not found`);
     }
@@ -39,6 +44,22 @@ export async function validateUserCredentials(username: string, password: string
     }
     // In a real application, passwords should be hashed and securely compared
     return user.password === password;
+}
+
+export async function getCurrentUser(username: string): Promise<User | null> {
+    const userDB = await getUserByUsername(username);
+    if (!userDB) {
+        return null;
+    }
+    return mapUserDBToDomain(userDB);
+}
+
+export async function getUserByName(name: string): Promise<User | null> {
+    const userDB = await fetchUserByName(name);
+    if (!userDB) {
+        return null;
+    }
+    return mapUserDBToDomain(userDB);
 }
 
 function mapUserDBToDomain(userDB: UserDB): User {
