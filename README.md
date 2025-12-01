@@ -2,8 +2,6 @@
 
 Secret Santa is a small two‑part application (backend + frontend) that lets a group of users draw a Secret Santa using a spinning wheel UI. The backend exposes a JSON API and Socket.IO events and stores users in Supabase. The frontend is a Next.js app that shows the wheel, handles authentication via simple username/password, and listens for real‑time updates.
 
-This README explains how the project is structured, how to run each part locally, required environment variables, and useful deployment hints.
-
 **Project Layout**
 - **`backend/`**: TypeScript Express server with Socket.IO. Talks to Supabase for user storage and exposes endpoints under `/:` e.g. `/login`, `/users`, `/has-spun`, `/current-user`.
 - **`frontend/secret-santa-fe/`**: Next.js 16 frontend (React 19) that renders the wheel UI, login flow and communicates with the backend.
