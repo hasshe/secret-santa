@@ -13,12 +13,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 const httpServer = http.createServer(app);
 
-// Use FRONTEND_URL to allow the production frontend origin to connect to Socket.IO
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3001';
 
 const io = new Server(httpServer, {
   cors: {
-    // When running in production set FRONTEND_URL to the frontend origin
     origin: process.env.FRONTEND_URL ? FRONTEND_URL : '*',
     credentials: true,
   }
@@ -33,14 +31,14 @@ app.use(cors({
 
 app.use(express.json());
 
-const limiter = rateLimit({
+const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 50,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
 })
 
-app.use(limiter)
+app.use(apiRateLimiter)
 
 app.get('/users', async (req: Request, res: Response<UsersResponse>) => {
   // This is middleware that checks authentication
