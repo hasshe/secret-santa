@@ -30,12 +30,15 @@ export async function getUsers(): Promise<UserDB[]> {
 
 export async function getAvailableUsers(requestingUsername: string, partnerName?: string | null): Promise<UserDB[]> {
     const all = await getUsers();
-    const assignedNames = new Set(all.map(u => u.secret_santa)
-        .filter((n): n is string => typeof n === 'string' && n.length > 0));
+    const assignedNames = new Set(
+        all
+            .map(u => u.secret_santa)
+            .filter((n): n is string => typeof n === 'string' && n.length > 0)
+    );
+
     return all.filter(user =>
         user.username !== requestingUsername &&
         (!partnerName || user.name !== partnerName) &&
-        !user.has_spun &&
         !assignedNames.has(user.name)
     );
 }
